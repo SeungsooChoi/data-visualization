@@ -10,7 +10,7 @@ export async function getStaticProps() {
   const numOfRows = 10;
   const startCreateDt = 20210217;
   const endCreateDt = 20220217;
-  const url = `http://openapi.data.go.kr/openapi/service/rest/Covid19/getCovid19InfStateJson?ServiceKey=${API_KEY}&pageNo=${pageNo}&numOfRows=${numOfRows}&startCreateDt=${startCreateDt}&endCreateDt=${endCreateDt}`;
+  const url = `${process.env.NEXT_PUBLIC_API_URL}?ServiceKey=${API_KEY}&pageNo=${pageNo}&numOfRows=${numOfRows}&startCreateDt=${startCreateDt}&endCreateDt=${endCreateDt}`;
 
   const data = await fetch(
     url,
