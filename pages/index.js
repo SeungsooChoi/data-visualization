@@ -1,9 +1,42 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.css'
+import Head from "next/head";
+import Image from "next/image";
+import ChartBlock from "../components/ChartBlock";
+import styles from "../styles/Home.module.css";
 
-export default function Home() {
-  return (
+export async function getStaticProps() {
+  // Get external data from the file system, API, DB, etc.
+  const API_KEY = process.env.API_KEY;
+  const pageNo = 1;
+  const numOfRows = 10;
+  const startCreateDt = 20210217;
+  const endCreateDt = 20220217;
+  const url = `http://openapi.data.go.kr/openapi/service/rest/Covid19/getCovid19InfStateJson?ServiceKey=${API_KEY}&pageNo=${pageNo}&numOfRows=${numOfRows}&startCreateDt=${startCreateDt}&endCreateDt=${endCreateDt}`;
+
+  const data = await fetch(
+    url,
+    {
+      // 이부분이 어떤 도움을 준 것인지 알아봐야함.. 너무 고맙
+      headers: {
+        Accept: "application/json",
+      },
+    },
+    { method: "GET" }
+  ).then((response) => response.json());
+
+  // The value of the `props` key will be
+  //  passed to the `Home` component
+  return {
+    props: {
+      data,
+    },
+  };
+}
+
+export default function Home({ data }) {
+  const {
+    response: { body },
+  } = data;
+  return body ? (
     <div className={styles.container}>
       <Head>
         <title>Create Next App</title>
@@ -12,44 +45,7 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
+        <ChartBlock data={body.items.item} />
       </main>
 
       <footer className={styles.footer}>
@@ -58,12 +54,14 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
+          Powered by{" "}
           <span className={styles.logo}>
             <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
           </span>
         </a>
       </footer>
     </div>
-  )
+  ) : (
+    "loading.."
+  );
 }
