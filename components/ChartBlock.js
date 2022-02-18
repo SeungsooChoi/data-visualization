@@ -8,16 +8,39 @@ import {
   PointElement,
 } from "chart.js";
 import { formatDate } from "../util";
+import styled from "styled-components";
 
-const ChartBlock = ({ data }) => {
-  let coronaArray = data.sort((a, b) => a.stateDt - b.stateDt);
+const Wrapper = styled.div`
+  width: 100%;
+  margin-bottom: 1.375rem;
+  border-radius: 0.75rem;
+  border: 0.0625rem solid #ced4da;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1);
+`;
+
+const Title = styled.div`
+  padding: 1rem;
+  text-align: center;
+`;
+
+const ChartBlock = ({
+  days: {
+    response: {
+      body: {
+        items: { item },
+      },
+    },
+  },
+}) => {
   const canvasDom = useRef();
-  const stateDt = coronaArray.map((day) =>
-    formatDate(day.createDt.split(" ")[0])
-  );
-  const decideCnt = coronaArray.map((day) => day.decideCnt);
 
   useEffect(() => {
+    const covidArr = item.sort((a, b) => a.stateDt - b.stateDt);
+    const stateDt = covidArr.map((day) =>
+      formatDate(day.createDt.split(" ")[0])
+    );
+    const decideCnt = covidArr.map((day) => day.decideCnt);
     const ctx = canvasDom.current.getContext("2d");
 
     Chart.register(
@@ -42,7 +65,14 @@ const ChartBlock = ({ data }) => {
     });
   }, []);
 
-  return <canvas ref={canvasDom}></canvas>;
+  return (
+    <Wrapper>
+      <Title>
+        <label>일별 누적 확진자 수</label>
+      </Title>
+      <canvas ref={canvasDom}></canvas>
+    </Wrapper>
+  );
 };
 
 export default ChartBlock;

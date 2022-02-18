@@ -53,16 +53,16 @@ const TodayBlock = styled.div`
   }
 `;
 
-const TotalCount = ({ data }) => {
-  const todayCount = data[0];
+const TotalCount = ({ days }) => {
+  const covidArr = days.response.body.items.item;
+  const todayCount = covidArr[0];
   const getDiffDecideCnt = (today, yesterDay) =>
     Number(today.decideCnt) - Number(yesterDay.decideCnt);
   const getDiffDeathCnt = (today, yesterDay) =>
     Number(today.deathCnt) - Number(yesterDay.deathCnt);
-  const diffTodayDecideCnt = getDiffDecideCnt(data[0], data[1]);
-  const diffTodayDeathCnt = getDiffDeathCnt(data[0], data[1]);
+  const diffTodayDecideCnt = getDiffDecideCnt(covidArr[0], covidArr[1]);
+  const diffTodayDeathCnt = getDiffDeathCnt(covidArr[0], covidArr[1]);
 
-  console.log(todayCount);
   return (
     <Section>
       <TodayBlock>

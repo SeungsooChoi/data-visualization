@@ -1,7 +1,6 @@
 import Head from "next/head";
 import Image from "next/image";
 import styled from "styled-components";
-import useSWR from "swr";
 import ChartBlock from "../components/ChartBlock";
 import TotalCount from "../components/TotalCount";
 import styles from "../styles/Home.module.css";
@@ -12,33 +11,7 @@ const Wrapper = styled.div`
   height: max-content;
 `;
 
-const fetcher = (url) =>
-  fetch(
-    url,
-    {
-      // 이부분이 어떤 도움을 준 것인지 알아봐야함.. 너무 고맙
-      headers: {
-        Accept: "application/json",
-      },
-    },
-    { method: "GET" }
-  ).then((response) => response.json());
-
-export default function Home() {
-  const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
-  const pageNo = 1;
-  const numOfRows = 10;
-  const startCreateDt = 20200101;
-  const endCreateDt = formatDate(new Date());
-  const url = `${API_URL}?ServiceKey=${API_KEY}&pageNo=${pageNo}&numOfRows=${numOfRows}&startCreateDt=${startCreateDt}&endCreateDt=${endCreateDt}`;
-  const { data, error } = useSWR(url, fetcher);
-
-  if (error) {
-    console.log(error);
-    return "An error has occurred.";
-  }
-  if (!data) return "Loading...";
+export default function Home({ days }) {
   return (
     <div className={styles.container}>
       <Head>
@@ -49,8 +22,8 @@ export default function Home() {
 
       <main className={styles.main}>
         <Wrapper>
-          <TotalCount data={data.response.body.items.item} />
-          <ChartBlock data={data.response.body.items.item} />
+          <TotalCount days={days} />
+          <ChartBlock days={days} />
         </Wrapper>
       </main>
 
@@ -69,4 +42,32 @@ export default function Home() {
       </footer>
     </div>
   );
+}
+
+export async function getStaticProps() {
+  const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const pageNo = 1;
+  const numOfRows = 10;
+  const startCreateDt = 20200101;
+  const endCreateDt = formatDate(new Date());
+  const url = `${API_URL}?ServiceKey=${API_KEY}&pageNo=${pageNo}&numOfRows=${numOfRows}&startCreateDt=${startCreateDt}&endCreateDt=${endCreateDt}`;
+
+  const covidData = await fetch(
+    url,
+    {
+      // 이부분이 어떤 도움을 준 것인지 알아봐야함.. 너무 고맙
+      headers: {
+        Accept: "application/json",
+      },
+    },
+    { method: "GET" }
+  );
+  const days = await covidData.json();
+
+  return {
+    props: {
+      days,
+    },
+  };
 }
