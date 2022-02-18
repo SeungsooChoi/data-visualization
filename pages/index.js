@@ -1,18 +1,19 @@
 import Head from "next/head";
 import Image from "next/image";
+import styled from "styled-components";
+import useSWR from "swr";
 import ChartBlock from "../components/ChartBlock";
+import TotalCount from "../components/TotalCount";
 import styles from "../styles/Home.module.css";
+import { formatDate } from "../util";
 
-export async function getStaticProps() {
-  // Get external data from the file system, API, DB, etc.
-  const API_KEY = process.env.API_KEY;
-  const pageNo = 1;
-  const numOfRows = 10;
-  const startCreateDt = 20210217;
-  const endCreateDt = 20220217;
-  const url = `${process.env.NEXT_PUBLIC_API_URL}?ServiceKey=${API_KEY}&pageNo=${pageNo}&numOfRows=${numOfRows}&startCreateDt=${startCreateDt}&endCreateDt=${endCreateDt}`;
+const Wrapper = styled.div`
+  width: 31.25rem;
+  height: max-content;
+`;
 
-  const data = await fetch(
+const fetcher = (url) =>
+  fetch(
     url,
     {
       // 이부분이 어떤 도움을 준 것인지 알아봐야함.. 너무 고맙
@@ -23,20 +24,22 @@ export async function getStaticProps() {
     { method: "GET" }
   ).then((response) => response.json());
 
-  // The value of the `props` key will be
-  //  passed to the `Home` component
-  return {
-    props: {
-      data,
-    },
-  };
-}
+export default function Home() {
+  const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const pageNo = 1;
+  const numOfRows = 10;
+  const startCreateDt = 20200101;
+  const endCreateDt = formatDate(new Date());
+  const url = `${API_URL}?ServiceKey=${API_KEY}&pageNo=${pageNo}&numOfRows=${numOfRows}&startCreateDt=${startCreateDt}&endCreateDt=${endCreateDt}`;
+  const { data, error } = useSWR(url, fetcher);
 
-export default function Home({ data }) {
-  const {
-    response: { body },
-  } = data;
-  return body ? (
+  if (error) {
+    console.log(error);
+    return "An error has occurred.";
+  }
+  if (!data) return "Loading...";
+  return (
     <div className={styles.container}>
       <Head>
         <title>Create Next App</title>
@@ -45,10 +48,14 @@ export default function Home({ data }) {
       </Head>
 
       <main className={styles.main}>
-        <ChartBlock data={body.items.item} />
+        <Wrapper>
+          <TotalCount data={data.response.body.items.item} />
+          <ChartBlock data={data.response.body.items.item} />
+        </Wrapper>
       </main>
 
       <footer className={styles.footer}>
+        <p>2022 &copy; Seungsoo Choi. All right reserved.</p>
         <a
           href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
           target="_blank"
@@ -61,7 +68,5 @@ export default function Home({ data }) {
         </a>
       </footer>
     </div>
-  ) : (
-    "loading.."
   );
 }
