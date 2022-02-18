@@ -7,8 +7,12 @@ import styles from "../styles/Home.module.css";
 import { formatDate } from "../util";
 
 const Wrapper = styled.div`
-  width: 31.25rem;
+  width: 100%;
   height: max-content;
+
+  @media (min-width: 30rem) {
+    width: 31.25rem;
+  }
 `;
 
 export default function Home({ days }) {
@@ -56,9 +60,8 @@ export async function getStaticProps() {
   const covidData = await fetch(
     url,
     {
-      // 이부분이 어떤 도움을 준 것인지 알아봐야함.. 너무 고맙
       headers: {
-        Accept: "application/json",
+        Accept: "application/json", // unexpected token < in json at position 0
       },
     },
     { method: "GET" }

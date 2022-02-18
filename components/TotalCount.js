@@ -21,8 +21,10 @@ const TodayBlock = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
+    color: #495057;
 
     .title {
+      margin-bottom: 0.0625rem;
       font-size: 0.8125rem;
       opacity: 0.9;
       color: #495057;
@@ -35,8 +37,8 @@ const TodayBlock = styled.div`
     }
 
     .diff {
-      padding: 0.09375rem 0.375rem;
-      border-radius: 3.125rem;
+      padding: 0.09375rem 0.875rem;
+      border-radius: 1.125rem;
     }
 
     .diff.decide {
@@ -49,7 +51,7 @@ const TodayBlock = styled.div`
     }
   }
   .item.red {
-    color: #fa5252;
+    color: #ff6b6b;
   }
 `;
 
